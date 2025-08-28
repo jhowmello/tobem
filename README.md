@@ -1,17 +1,72 @@
-# TôBem - Plataforma de Cuidado para Idosos
+# TôBem - Plataforma de Suporte a Idosos via WhatsApp com n8n
 
-## Visão Geral
-Plataforma digital integrada para monitoramento e cuidado de pessoas idosas através do WhatsApp Business API, com sistema de agendamento inteligente e painel de controle para familiares.
+## 📋 Visão Geral
 
-## 🚀 Como Executar o Projeto
+O **TôBem** é uma plataforma inovadora que utiliza **n8n como cérebro de orquestração** junto com WhatsApp Business API para oferecer suporte contínuo a pessoas idosas, permitindo que familiares acompanhem e cuidem de seus entes queridos de forma proativa e carinhosa.
+
+### 🎯 Objetivo Principal
+Facilitar o cuidado e monitoramento de idosos através de:
+- **Lembretes automáticos** para medicação, consultas e atividades
+- **Detecção de emergências** através de palavras-chave e ausência prolongada
+- **Escalonamento inteligente** para familiares em situações críticas
+- **Interface amigável** para gestão de rotinas e acompanhamento
+- **Workflows visuais** facilmente modificáveis no n8n
+
+## 🏗️ Arquitetura do Sistema (MVP com n8n)
+
+### 🧠 Cérebro de Orquestração - n8n
+
+O **n8n** atua como o motor principal do sistema, gerenciando:
+- **Bot WhatsApp Conversacional**: Processamento de mensagens e respostas
+- **Fluxos de Lembretes Automáticos**: Agendamento e envio de notificações
+- **Detecção de Emergência**: Análise de palavras-chave e padrões
+- **Escalonamento para Familiares**: Notificações multi-canal
+- **Integração com Serviços Externos**: WhatsApp, SMS, Email
+
+### 🔧 Componentes Principais
+
+#### 1. **n8n Workflows**
+- **Workflow Bot Conversa**: Processamento NLP e respostas contextuais
+- **Workflow Lembretes**: Agendamento cron e retry automático
+- **Workflow Emergências**: Detecção de palavras-chave e ausência prolongada
+- **Workflow Escalonamento**: Notificação multi-canal para familiares
+
+#### 2. **Backend Simplificado (.NET 8)**
+- **APIs CRUD**: Operações de dados estruturados
+- **Autenticação**: Sistema de login e RBAC
+- **Relatórios**: Geração de dashboards e métricas
+- **Health Checks**: Monitoramento de saúde do sistema
+
+#### 3. **Banco de Dados (PostgreSQL)**
+- **TôBem Data**: Dados estruturados, relatórios e métricas
+- **n8n Database**: Definições de workflows e histórico de execução
+
+#### 4. **Cache e Filas**
+- **Redis (n8n Queue)**: Execução de workflows e cache de sessões
+
+#### 5. **Painel Web (Next.js)**
+- Interface para familiares
+- Visualização de dados do backend
+- Configurações e relatórios
+
+#### 6. **Integrações Externas**
+- **WhatsApp Business Cloud API**
+- **Twilio** (SMS/Chamadas de emergência)
+- **SendGrid** (Notificações por email)
+- **Azure Blob Storage** (Armazenamento de arquivos)
+
+## 🚀 Como Executar o Projeto (MVP com n8n)
 
 ### Pré-requisitos
-- .NET 8 SDK
-- PostgreSQL 15+ (opcional - pode usar InMemory para desenvolvimento)
-- Redis 7+ (opcional - pode usar InMemory para desenvolvimento)
-- Git
+- Docker e Docker Compose
+- .NET 8 SDK (para desenvolvimento)
+- Node.js 18+ (para o painel web)
+- Conta WhatsApp Business API
+- Contas Twilio e SendGrid (opcionais)
 
 ### Passos para Execução
+
+#### 🐳 Opção 1: Docker Compose (Recomendado)
 
 1. **Clone o repositório**
 ```bash
@@ -19,20 +74,56 @@ git clone <url-do-repositorio>
 cd EuToBem
 ```
 
-2. **Restaure as dependências**
+2. **Configure as variáveis de ambiente**
 ```bash
+# Copie o arquivo de exemplo
+cp .env.example .env
+
+# Edite as configurações necessárias:
+# - Credenciais WhatsApp Business API
+# - Chaves de API (Twilio, SendGrid)
+# - Configurações de banco de dados
+```
+
+3. **Execute com Docker Compose**
+```bash
+# Inicia todos os serviços (n8n, PostgreSQL, Redis, Backend API)
+docker-compose up -d
+```
+
+4. **Acesse os serviços**
+- **n8n Interface**: `http://localhost:5678`
+- **TôBem API**: `http://localhost:5000`
+- **Swagger UI**: `http://localhost:5000/swagger`
+- **Health Check**: `http://localhost:5000/health`
+
+#### 🔧 Opção 2: Desenvolvimento Local
+
+1. **Configure o banco de dados**
+```bash
+# Inicie PostgreSQL e Redis via Docker
+docker-compose up -d postgres redis
+```
+
+2. **Configure o n8n**
+```bash
+# Inicie n8n via Docker
+docker-compose up -d n8n
+```
+
+3. **Execute o backend .NET**
+```bash
+cd src/ToBem.Api
 dotnet restore
+dotnet ef database update
+dotnet run
 ```
 
-3. **Execute a aplicação**
-```bash
-dotnet run --project src/ToBem.Api
-```
-
-4. **Acesse a API**
-- URL: `http://localhost:5000`
-- Swagger UI: `http://localhost:5000/swagger` (se habilitado)
-- Health Check: `http://localhost:5000/health`
+4. **Configure workflows no n8n**
+- Acesse `http://localhost:5678`
+- Importe os workflows da pasta `/n8n-workflows/`
+- Configure as credenciais (WhatsApp, Twilio, SendGrid)
+- Configure a URL do backend: `http://localhost:5000`
 
 ### Configuração do Banco de Dados
 
